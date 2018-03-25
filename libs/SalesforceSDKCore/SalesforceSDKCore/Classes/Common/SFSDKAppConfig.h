@@ -44,6 +44,18 @@ static NSString *const SFSDKDefaultNativeAppConfigFilePath = @"/bootconfig.plist
  * The Connected App key associated with this application.
  */
 @property (nonatomic, copy) NSString *remoteAccessConsumerKey;
+/**
+ * The Username associated with this application.
+ */
+@property (nonatomic, copy) NSString *username;
+/**
+ * The password associated with this application.
+ */
+@property (nonatomic, copy) NSString *password;
+/**
+ * The clientSecret associated with this application.
+ */
+@property (nonatomic, copy) NSString *clientSecret;
 
 /**
  * The OAuth Redirect URI associated with the configured Connected Application.

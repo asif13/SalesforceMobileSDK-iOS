@@ -42,6 +42,7 @@
 #import "SFSDKWebViewStateManager.h"
 #import "SFNetwork.h"
 #import "NSURL+SFAdditions.h"
+#import "SFSDKAppConfig.h"
 #import <SalesforceAnalytics/NSUserDefaults+SFAdditions.h>
 
 // Public constants
@@ -743,6 +744,101 @@ static NSString * const kSFECParameter = @"ec";
     }
 }
 
+/**
+ POST request to access token through username/password flow
+ */
+- (void)postRequestToFetchAccessToken {
+    
+    NSDictionary *headers = @{ @"Content-Type": @"application/x-www-form-urlencoded" };
+    SFSDKAppConfig *config = [SalesforceSDKManager sharedManager].appConfig;
+    NSString *password = config.password;
+    NSString *username = config.username;
+    NSString *clientId = config.remoteAccessConsumerKey;
+    NSString *clientSecret = config.clientSecret;
+    NSString *post = [NSString stringWithFormat:@"grant_type=password&client_id=%@&client_secret=%@&username=%@&password=%@",clientId,clientSecret,username,password];
+
+    NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://emaarsales--partialdev.cs82.my.salesforce.com/services/oauth2/token"]
+                                                           cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                       timeoutInterval:10.0];
+    [request setHTTPMethod:@"POST"];
+    [request setAllHTTPHeaderFields:headers];
+    [request setHTTPBody:postData];
+    
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+                                                completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                    if (error) {
+                                                        NSLog(@"%@", error);
+                                                    } else {
+                                                        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+                                                        NSLog(@"%@", httpResponse);
+                                                        NSString *str=[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+                                                        NSLog(@"%@", str);
+                                                       
+                                                        [self handleResponseFromAccessTokenFlow:str];
+                                               
+                                                    }
+                                                }];
+    [dataTask resume];
+}
+/**
+ Extract key and value from response string view post request
+
+ @param responseString
+ */
+- (void)handleResponseFromAccessTokenFlow:(NSString *)responseString {
+    
+    if (responseString) {
+        NSDictionary *params = [[self class] parseResponseString:responseString];
+        NSString *error = params[kSFOAuthError];
+        if (nil == error) {
+            [self updateCredentials:params];
+            if (nil != params[kSFOAuthRefreshToken]){
+                self.credentials.refreshToken   = params[kSFOAuthRefreshToken];
+            }
+            [self notifyDelegateOfSuccess:self.authInfo];
+        } else {
+            NSError *finalError;
+            NSError *error = [[self class] errorWithType:params[kSFOAuthError]
+                                             description:params[kSFOAuthErrorDescription]];
+            
+            // add any additional relevant info to the userInfo dictionary
+            if (kSFOAuthErrorInvalidClientId == error.code) {
+                NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:error.userInfo];
+                dict[kSFOAuthClientId] = self.credentials.clientId;
+                finalError = [NSError errorWithDomain:error.domain code:error.code userInfo:dict];
+            } else {
+                finalError = error;
+            }
+            [self notifyDelegateOfFailure:finalError authInfo:self.authInfo];
+        }
+    }
+}
+
++ (NSDictionary *)parseResponseString:(NSString *)query {
+    query = [query stringByReplacingOccurrencesOfString:@"{" withString:@""];
+    query = [query stringByReplacingOccurrencesOfString:@"}" withString:@""];
+    query = [query stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+    NSArray *pairs = [query componentsSeparatedByString:@","];
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithCapacity:pairs.count];
+    for (NSString *pair in pairs) {
+        NSArray *keyValue = [pair componentsSeparatedByString:@":"];
+        NSString *key = keyValue[0];
+        NSString *value;
+        if (keyValue.count == 2){
+            value = keyValue[1];
+        }else if (keyValue.count > 2) {
+            
+            value = [pair stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@:",key] withString:@""];
+        }
+
+        dict[key] = value;
+    }
+    NSDictionary *result = [NSDictionary dictionaryWithDictionary:dict];
+    return result;
+}
 - (void)handleUserAgentResponse:(NSURL *)requestUrl {
     NSString *response = nil;
     
@@ -934,17 +1030,8 @@ static NSString * const kSFECParameter = @"ec";
 
 #pragma mark - WKNavigationDelegate (User-Agent Token Flow)
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-    NSURL *url = navigationAction.request.URL;
-    NSString *requestUrl = [url absoluteString];
-    if ([self isRedirectURL:requestUrl]) {
-        [self handleUserAgentResponse:url];
-        decisionHandler(WKNavigationActionPolicyCancel);
-    } else if ([self isSPAppRedirectURL:requestUrl]){
-        [self handleIDPAuthCodeResponse:url];
-        decisionHandler(WKNavigationActionPolicyCancel);
-    }else {
-        decisionHandler(WKNavigationActionPolicyAllow);
-    }
+    [self postRequestToFetchAccessToken];
+    decisionHandler(WKNavigationActionPolicyCancel);
 }
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
