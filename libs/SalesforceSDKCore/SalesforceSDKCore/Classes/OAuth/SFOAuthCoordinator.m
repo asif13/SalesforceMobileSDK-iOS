@@ -771,6 +771,7 @@ static NSString * const kSFECParameter = @"ec";
                                                 completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                                                     if (error) {
                                                         NSLog(@"%@", error);
+                                                        [self notifyDelegateOfFailure:error authInfo:self.authInfo];
                                                     } else {
                                                         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
                                                         NSLog(@"%@", httpResponse);
