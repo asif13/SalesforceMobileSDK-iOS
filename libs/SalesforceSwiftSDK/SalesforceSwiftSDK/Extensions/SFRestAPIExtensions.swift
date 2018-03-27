@@ -26,6 +26,7 @@ import Foundation
 import PromiseKit
 import SalesforceSDKCore
 
+
 /** SFRestResponse is  a struct representing the response for all SFRestAPI promise api(s).
  
  ```
@@ -45,8 +46,8 @@ import SalesforceSDKCore
  */
 public struct SFRestResponse {
     
-    private (set) var data : Data?
-    private (set) var urlResponse : URLResponse?
+    public var data : Data?
+    public var urlResponse : URLResponse?
     
     init(data: Data?,response: URLResponse?) {
         self.data = data
@@ -98,12 +99,29 @@ public struct SFRestResponse {
     ///
     /// - Parameter type: type of Decodable
     /// - Returns: Decodable
-    public func asDecodable<T:Decodable>(type: T.Type) -> Decodable? {
+//    public func asDecodable<T:Decodable>(type: T.Type) -> Decodable? {
+//        guard let rawData = data,data!.count > 0 else {
+//            return nil
+//        }
+//        let decoder = JSONDecoder()
+//        return try! decoder.decode(type, from: rawData)
+//    }
+    
+    /// Parse and unmarshall the response as a Decodable Type
+    ///
+    /// - Parameter type: type of Decodable
+    /// - Returns: Decodable
+    public func asDecodable<T:Decodable>(type: T.Type) -> T?{
+        
         guard let rawData = data,data!.count > 0 else {
             return nil
         }
+        
         let decoder = JSONDecoder()
-        return try! decoder.decode(type, from: rawData)
+        if let object = try? decoder.decode(type, from: rawData)  {
+            return object
+        }
+        return nil
     }
 }
 
@@ -829,7 +847,6 @@ extension SFRestAPI {
                 })
             }
         }
-        
     }
-    
+  
 }

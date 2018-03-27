@@ -755,11 +755,12 @@ static NSString * const kSFECParameter = @"ec";
     NSString *username = config.username;
     NSString *clientId = config.remoteAccessConsumerKey;
     NSString *clientSecret = config.clientSecret;
+    NSString *url = config.url;
     NSString *post = [NSString stringWithFormat:@"grant_type=password&client_id=%@&client_secret=%@&username=%@&password=%@",clientId,clientSecret,username,password];
 
     NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
     
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://emaarsales--partialdev.cs82.my.salesforce.com/services/oauth2/token"]
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]
                                                            cachePolicy:NSURLRequestUseProtocolCachePolicy
                                                        timeoutInterval:10.0];
     [request setHTTPMethod:@"POST"];

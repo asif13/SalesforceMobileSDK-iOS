@@ -49,6 +49,10 @@ static NSString *const SFSDKDefaultNativeAppConfigFilePath = @"/bootconfig.plist
  */
 @property (nonatomic, copy) NSString *username;
 /**
+ * The Username associated with this application.
+ */
+@property (nonatomic, copy) NSString *url;
+/**
  * The password associated with this application.
  */
 @property (nonatomic, copy) NSString *password;
