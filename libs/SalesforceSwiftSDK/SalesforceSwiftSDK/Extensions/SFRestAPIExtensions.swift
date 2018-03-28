@@ -109,6 +109,8 @@ public struct SFRestResponse {
         if let object = try? decoder.decode(type, from: rawData)  {
             return object
         }
+        print("Failed to parse response, please check model has all the fields coming from response ")
+
         return nil
     }
 }
