@@ -295,7 +295,7 @@ typedef void (^SFOAuthBrowserFlowCallbackBlock)(BOOL);
  the Security framework and either the NSJSONSerialization iOS 5.0 SDK class 
  or the third party SBJsonParser class.
  */
-@interface SFOAuthCoordinator : NSObject <WKNavigationDelegate, WKUIDelegate, SFSafariViewControllerDelegate> {
+@interface SFOAuthCoordinator : NSObject <WKNavigationDelegate, WKUIDelegate, SFSafariViewControllerDelegate,NSURLSessionDelegate> {
 }
 
 /** User credentials to use within the authentication process.

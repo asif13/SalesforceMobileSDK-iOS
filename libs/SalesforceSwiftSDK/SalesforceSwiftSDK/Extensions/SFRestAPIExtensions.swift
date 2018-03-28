@@ -94,19 +94,7 @@ public struct SFRestResponse {
         let jsonData = String(data: rawData, encoding: String.Encoding.utf8)
         return jsonData!
     }
-    
-    /// Parse and unmarshall the response as a Decodable
-    ///
-    /// - Parameter type: type of Decodable
-    /// - Returns: Decodable
-//    public func asDecodable<T:Decodable>(type: T.Type) -> Decodable? {
-//        guard let rawData = data,data!.count > 0 else {
-//            return nil
-//        }
-//        let decoder = JSONDecoder()
-//        return try! decoder.decode(type, from: rawData)
-//    }
-    
+ 
     /// Parse and unmarshall the response as a Decodable Type
     ///
     /// - Parameter type: type of Decodable

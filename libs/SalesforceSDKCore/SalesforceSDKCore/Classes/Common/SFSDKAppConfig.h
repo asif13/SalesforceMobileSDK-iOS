@@ -49,6 +49,10 @@ static NSString *const SFSDKDefaultNativeAppConfigFilePath = @"/bootconfig.plist
  */
 @property (nonatomic, copy) NSString *username;
 /**
+ * The certificate name used for SSL pining.
+ */
+@property (nonatomic, copy) NSString *sslPiningCertificate;
+/**
  * The Username associated with this application.
  */
 @property (nonatomic, copy) NSString *url;

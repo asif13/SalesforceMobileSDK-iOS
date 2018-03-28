@@ -766,8 +766,13 @@ static NSString * const kSFECParameter = @"ec";
     [request setHTTPMethod:@"POST"];
     [request setAllHTTPHeaderFields:headers];
     [request setHTTPBody:postData];
-    
     NSURLSession *session = [NSURLSession sharedSession];
+    //If certificate name is set, than we add a delegate to NSURLSession to handle ssl pining
+    if (config.sslPiningCertificate != NULL) {
+        NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+        session = [NSURLSession sessionWithConfiguration:sessionConfig delegate:self delegateQueue:nil];
+    }
+ 
     NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
                                                 completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                                                     if (error) {
@@ -788,7 +793,7 @@ static NSString * const kSFECParameter = @"ec";
 /**
  Extract key and value from response string view post request
 
- @param responseString
+ @param responseString response from post request
  */
 - (void)handleResponseFromAccessTokenFlow:(NSString *)responseString {
     
@@ -955,7 +960,16 @@ static NSString * const kSFECParameter = @"ec";
     }
 
     if (params[kSFOAuthId]) {
-        [self.credentials setPropertyForKey:@"identityUrl" withValue:[NSURL URLWithString:params[kSFOAuthId]]];
+        NSString *identityUrl = params[kSFOAuthId];
+        //replacing default url , in case ssl pining , as certificate would become invalid
+        if ([SalesforceSDKManager sharedManager].appConfig.sslPiningCertificate != NULL){
+            identityUrl = [identityUrl
+                           stringByReplacingOccurrencesOfString:@"https://test.salesforce.com" withString:params[kSFOAuthInstanceUrl]];
+            identityUrl = [identityUrl
+                           stringByReplacingOccurrencesOfString:@"https://login.salesforce.com" withString:params[kSFOAuthInstanceUrl]];
+        }
+        
+        [self.credentials setPropertyForKey:@"identityUrl" withValue:[NSURL URLWithString:identityUrl]];
     }
 
     if (params[kSFOAuthCommunityId]) {
@@ -1119,6 +1133,40 @@ static NSString * const kSFECParameter = @"ec";
         [SFSDKCoreLogger w:[self class] format:@"WKWebView did want to display a confirmation alert but no delegate responded to it"];
     }
 }
+
+#pragma mark - NSUrlSessionDelegate
+
+-(void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
+    
+    // Get remote certificate
+    SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
+    SecCertificateRef certificate = SecTrustGetCertificateAtIndex(serverTrust, 0);
+    
+    // Set SSL policies for domain name check
+    NSMutableArray *policies = [NSMutableArray array];
+    [policies addObject:(__bridge_transfer id)SecPolicyCreateSSL(true, (__bridge CFStringRef)challenge.protectionSpace.host)];
+    SecTrustSetPolicies(serverTrust, (__bridge CFArrayRef)policies);
+    
+    // Evaluate server certificate
+    SecTrustResultType result;
+    SecTrustEvaluate(serverTrust, &result);
+    BOOL certificateIsValid = (result == kSecTrustResultUnspecified || result == kSecTrustResultProceed);
+    
+    // Get local and remote cert data
+    NSData *remoteCertificateData = CFBridgingRelease(SecCertificateCopyData(certificate));
+    NSString *certificateName = [SalesforceSDKManager sharedManager].appConfig.sslPiningCertificate;
+    NSString *pathToCert = [[NSBundle mainBundle]pathForResource:certificateName ofType:@"cer"];
+    NSData *localCertificate = [NSData dataWithContentsOfFile:pathToCert];
+    
+    // The pinnning check
+    if ([remoteCertificateData isEqualToData:localCertificate] && certificateIsValid) {
+        NSURLCredential *credential = [NSURLCredential credentialForTrust:serverTrust];
+        completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+    } else {
+        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, NULL);
+    }
+}
+
 
 #pragma mark - SFSafariViewControllerDelegate
 -(void)safariViewControllerDidFinish:(SFSafariViewController *)controller {
