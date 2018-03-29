@@ -44,7 +44,7 @@ public class CMCondition {
             query.append(subquery)
             
         }
-        return query.joined(separator: ",")
+        return query.joined(separator: " AND ")
     }
     static func getValueForOperator(cmOperator : CMOperator,value : String)->String{
         switch cmOperator {

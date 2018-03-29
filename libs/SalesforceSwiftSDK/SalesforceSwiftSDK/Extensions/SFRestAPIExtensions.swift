@@ -837,6 +837,20 @@ extension SFRestAPI {
                 })
             }
         }
+ 
+        /// Download content from content version object
+        ///
+        /// - Parameters:
+        ///   - contentDocumentId: content Id
+        ///   - versionNumber: version number
+        /// - Returns:  SFRestRequest wrapped in a promise.
+        public func downloadContentVersion(contentDocumentId : String,versionNumber:String)->Promise<SFRestRequest> {
+            return  Promise(.pending) {  resolver in
+                resolver.fulfill(
+                    self.api!.request(forFileContents:contentDocumentId, version: versionNumber)
+                )
+            }
+        }
     }
   
 }
