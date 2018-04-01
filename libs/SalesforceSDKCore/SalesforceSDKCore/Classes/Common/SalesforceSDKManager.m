@@ -326,7 +326,11 @@ static NSString *const SFSDKShowDevDialogNotification = @"SFSDKShowDevDialogNoti
 {
     [SFPasscodeManager sharedManager].preferredPasscodeProvider = preferredPasscodeProvider;
 }
-
+- (BOOL)launchWithUsername : (NSString*) username password : (NSString*) password {
+    self.appConfig.username = username;
+    self.appConfig.password = password;
+    return [self launch];
+}
 - (BOOL)launch
 {
     if (_isLaunching) {

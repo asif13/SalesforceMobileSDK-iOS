@@ -316,6 +316,27 @@ extension SFRestAPI {
          ```
          restApi.Promises.update(objectType: objectId: "1000", fieldList: fieldList,ifUnmodifiedSince:sinceDate)
          .then { (request) in
+         restApi.send(request)
+         }
+         
+         ```
+         - parameters:
+         - objectType: Type of object.
+         - objectId: Identifier of the field.
+         - fields: Field list as Dictionary.
+         - Returns: SFRestRequest wrapped in a promise.
+         */
+        public func update(objectType: String,objectId: String,fieldList: [String: Any]?) -> Promise<SFRestRequest> {
+            return  Promise(.pending) {  resolver in
+                resolver.fulfill(self.api!.requestForUpdate(withObjectType: objectType, objectId: objectId, fields: fieldList))
+            }
+        }
+        
+        /**
+         A factory method for update object request.
+         ```
+         restApi.Promises.update(objectType: objectId: "1000", fieldList: fieldList,ifUnmodifiedSince:sinceDate)
+         .then { (request) in
             restApi.send(request)
          }
          

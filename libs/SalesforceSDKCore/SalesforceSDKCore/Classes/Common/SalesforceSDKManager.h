@@ -266,6 +266,19 @@ typedef void (^SFSnapshotViewControllerDismissalBlock)(UIViewController* snapsho
  */
 @property (nonatomic, assign) BOOL isDevSupportEnabled;
 
+
+/**
+ Launches the SDK.  This will verify an existing passcode the first time it runs, and attempt to
+ authenticate if the current user is not already authenticated.  @see postLaunchAction, launchErrorAction,
+ postLogoutAction, and switchUserAction for callbacks that can be set for handling post launch
+ actions.
+
+ @param username salesforce username
+ @param password salesforce password
+ @return YES if the launch successfully kicks off, NO if launch is already running.
+ */
+- (BOOL)launchWithUsername : (NSString*) username password : (NSString*) password;
+
 /**
  Launches the SDK.  This will verify an existing passcode the first time it runs, and attempt to
  authenticate if the current user is not already authenticated.  @see postLaunchAction, launchErrorAction,
