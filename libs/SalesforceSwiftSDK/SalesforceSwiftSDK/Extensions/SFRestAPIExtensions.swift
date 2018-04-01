@@ -872,6 +872,18 @@ extension SFRestAPI {
                 )
             }
         }
+        /**
+         A factory method for update object request.
+         - parameters:
+         - objectType: Type of object.
+         - objectId: Identifier of the field.
+         - fields: Field list as Dictionary.
+         - ifUnmodifiedSince: update if unmodified since date.
+         - Returns: SFRestRequest
+         */
+        public func update(objectType: String,objectId: String,fieldList: [String: Any]?) -> SFRestRequest {
+            return self.api!.requestForUpdate(withObjectType: objectType, objectId: objectId, fields: fieldList)
+        }
     }
   
 }
