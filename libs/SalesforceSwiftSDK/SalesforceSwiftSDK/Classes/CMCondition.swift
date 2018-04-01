@@ -61,7 +61,7 @@ public class CMCondition {
         case .like:
             return "LIKE '\(value)'"
         case .wildcardLike:
-            return "LIKE %\(value)%"
+            return "LIKE '%\(value)%'"
         case .equalBoolean:
             return "= \(value)"
         case .greaterThan:
