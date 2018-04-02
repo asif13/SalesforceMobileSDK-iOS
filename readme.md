@@ -15,13 +15,14 @@ This repository has been forked from [offical salesforce sdk](https://github.com
 - SSL Pining which encrypts all the communication between salesforce and iOS SDK
   - update sslpiningcertificate name in appConfig to enable ssl pinning.
 - Use CMObjectType and CMCondition to build queries.
+- Use queryMore to fetch more than 2000 records.
 
 Getting Started
 ==
 - If you'd like to work with the source code of the SDK itself, you've come to the right place!  You can browse sample app source code and debug down through the layers to get a feel for how everything works under the covers.
 - If you're just eager to start developing your own new application, the quickest way is to use cocoapod.
 ```
-  pod 'SalesforceAnalytics',:git => 'https://git.assembla.com/pwc-digital-services-libraries.salesforceiossdk.git'
+ 	pod 'SalesforceAnalytics',:git => 'https://git.assembla.com/pwc-digital-services-libraries.salesforceiossdk.git'
 	pod 'SalesforceSDKCore',:git =>  'https://git.assembla.com/pwc-digital-services-libraries.salesforceiossdk.git'
 	pod 'SmartStore',:git =>  'https://git.assembla.com/pwc-digital-services-libraries.salesforceiossdk.git'
 	pod 'SmartSync',:git =>  'https://git.assembla.com/pwc-digital-services-libraries.salesforceiossdk.git'
