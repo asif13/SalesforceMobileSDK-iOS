@@ -323,6 +323,18 @@ extern NSString* const kSFRestIfUnmodifiedSince;
  *             Name from Account ORDER BY Name LIMIT 20"
  * @see http://www.salesforce.com/us/developer/docs/api_rest/Content/resources_queryall.htm
  */
+
+/**
+ * Returns an `SFRestRequest` which executes the specified SOQL query.
+ * The result contains the deleted objects.
+ * @param soql a string containing the query to execute - for example, "SELECT Id,
+ *             Name from Account ORDER BY Name LIMIT 20"
+ * @see http://www.salesforce.com/us/developer/docs/api_rest/Content/resources_queryall.htm
+ *  @param path path to fetch query from
+ */
+
+- (SFRestRequest *)requestForQuery:(NSDictionary *)queryParams path : (NSString *)path ;
+
 - (SFRestRequest *)requestForQueryAll:(NSString *)soql;
 
 /**

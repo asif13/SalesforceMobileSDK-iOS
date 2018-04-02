@@ -143,6 +143,8 @@ extension SFRestAPI {
         
         weak var api: SFRestAPI?
         
+        public var queryMoreData = [AnyObject]()
+
         init(api: SFRestAPI) {
             self.api = api
         }
@@ -390,7 +392,23 @@ extension SFRestAPI {
                 resolver.fulfill(self.api!.request(forQuery: soql))
             }
         }
-        
+        /**
+         A factory method for query object request.
+         ```
+         restApi.Promises.query(soql: soql)
+         .then { (request) in
+         ...
+         }
+         ```
+         - parameters:
+         - soql: Soql string.
+         - Returns:  SFRestRequest wrapped in a promise.
+         */
+        public func queryMoreRequest(forQuery: [AnyHashable : Any],path : String) -> Promise<SFRestRequest> {
+            return  Promise(.pending) {  resolver in
+                resolver.fulfill(self.api!.request(forQuery: forQuery, path: path))
+            }
+        }
         /**
          A factory method for queryAll object request.
          ```

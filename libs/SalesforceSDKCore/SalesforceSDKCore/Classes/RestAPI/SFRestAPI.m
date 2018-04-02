@@ -522,7 +522,9 @@ __strong static NSDateFormatter *httpDateFormatter = nil;
     NSString *path = [NSString stringWithFormat:@"/%@/query", self.apiVersion];
     return [SFRestRequest requestWithMethod:SFRestMethodGET path:path queryParams:queryParams];
 }
-
+- (SFRestRequest *)requestForQuery:(NSDictionary *)queryParams path : (NSString *)path {
+    return [SFRestRequest requestWithMethod:SFRestMethodGET path:path queryParams:queryParams];
+}
 - (SFRestRequest *)requestForQueryAll:(NSString *)soql {
     NSDictionary *queryParams = nil;
     if (soql) {

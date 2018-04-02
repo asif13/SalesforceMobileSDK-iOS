@@ -51,9 +51,9 @@ public class CMCondition {
         case .none:
             return ""
         case .In:
-            return "IN \(value)"
+            return "IN ('\(value)')"
         case .notIn:
-            return "NOT IN \(value)"
+            return "NOT IN ('\(value)')"
         case .equals:
             return "= '\(value)'"
         case .notEquals:
