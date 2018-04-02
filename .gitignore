@@ -16,6 +16,7 @@ shared/test/test_credentials.json
 /libs/SmartStore/build/
 /libs/SmartSync/build/
 /native/SampleApps/RestAPIExplorer/build/
+/native/SampleApps/SDKSampleApp/Pods
 node_modules/
 .github/
 .idea/

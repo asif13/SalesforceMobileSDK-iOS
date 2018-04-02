@@ -41,5 +41,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>SFDCOAuthLoginHost</key>
+	<string>emaarsales--partialdev.cs82.my.salesforce.com</string>
 </dict>
 </plist>
